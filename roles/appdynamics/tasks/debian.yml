@@ -1,0 +1,10 @@
+- name: Install requirements Debian
+  package:
+    name:
+      - libaio1
+      - numactl
+      - tzdata
+      - libncurses5
+    state: latest
+
+-

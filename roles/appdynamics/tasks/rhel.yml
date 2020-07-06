@@ -1,0 +1,8 @@
+- name: Install requirements RHEL
+  package:
+    name:
+      - libaio
+      - numactl
+      - tzdata
+      - ncurses-libs
+    state: latest

@@ -1,0 +1,12 @@
+# Build the entire monitoring solution
+- hosts: ec2
+  connection: local
+  gather_facts: false
+  roles:
+    - ec2
+
+- hosts: server
+  become: True
+  gather_facts: True
+  roles:
+    - appdynamics

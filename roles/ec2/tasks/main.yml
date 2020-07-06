@@ -1,0 +1,45 @@
+- name: Display attributes
+  debug:
+    msg:
+      - "SSH Key: {{ ansible_ssh_private_key_file }}"
+      - "User: {{ ansible_ssh_user }}"
+      - "SSH Args: {{ ansible_ssh_common_args }}"
+
+- name: Create ec2 for AppDynamics Server
+  ec2:
+    key_name: "{{ sshkey }}"
+    group: "{{ secgrps }}"
+    instance_type: "{{server_type}}"
+    image: "{{ ami[region] }}"
+    wait: true
+    region: "{{ region }}"
+    vpc_subnet_id: "{{ subnets['public'] }}"
+    assign_public_ip: yes
+    instance_tags:
+      Name: "{{ project_name }}.AppDServer"
+      Environment: "{{ env }}"
+    volumes:
+      - device_name: "/dev/{{ root_device }}"
+        volume_type: gp2
+        volume_size: "{{ controller_disk_size }}"
+  when: groups['server'] | length == 0
+  register: ec2Server
+
+- name: Wait for SSH to come up
+  delegate_to: "{{ item.public_dns_name }}"
+  wait_for_connection:
+    delay: 30
+    timeout: 320
+  when: groups['server'] | length == 0
+  with_items: "{{ ec2Server.instances }}"
+
+- name: Add to inventory
+  lineinfile:
+    dest: "{{ lookup('env','ANSIBLEENV') }}/hosts"
+    insertafter: '^\[server\]'
+    line: "{{ item.public_dns_name }} instance_id={{ item.id}} private_ip={{ item.private_ip }}"
+  when: groups['server'] | length == 0
+  with_items: "{{ ec2Server.instances }}"
+
+- name: Refresh inventory
+  meta: refresh_inventory

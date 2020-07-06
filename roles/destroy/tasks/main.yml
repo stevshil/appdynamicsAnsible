@@ -1,0 +1,20 @@
+- name: Get Instance ID
+  set_fact:
+    server_id: "{{ hostvars[groups['server'][0]].instance_id }}"
+
+- name: Remove servers
+  ec2:
+    state: absent
+    instance_ids: '{{ item }}'
+    region: '{{ region }}'
+  with_items:
+    - "{{ server_id }}"
+
+# This is done automatically
+- name: remove servers from inventory
+  lineinfile:
+    dest: "{{ lookup('env','ANSIBLEENV') }}/hosts"
+    state: absent
+    regexp: "^{{item}}"
+  with_items:
+    - "{{ groups['server'] }}"

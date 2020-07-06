@@ -1,0 +1,28 @@
+- include_tasks: rhel.yml
+  when: ansible_os_family == 'RedHat'
+- include_tasks: debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: Download AppDynamics installer
+  shell: wget https://www.dropbox.com/s/j2efjre64zo9yb3/platform-setup-x64-linux-20.6.3.22636.sh?dl=0 -O /var/tmp/platform-setup-x64-linux-20.6.3.22636.sh
+
+- name: Set permissions
+  shell: chmod +x /var/tmp/platform-setup-x64-linux-20.6.3.22636.sh
+#   get_url:
+#     url: "https://www.dropbox.com/s/j2efjre64zo9yb3/platform-setup-x64-linux-20.6.3.22636.sh?dl=0"
+#     dest: /var/tmp/platform-setup-x64-linux-20.6.3.22636.sh
+#     owner: root
+#     group: root
+#     validate_certs: no
+#     mode: 0755
+
+- name: Create Silent config file
+  template:
+    src: silent.vars.j2
+    dest: /var/tmp/silent.vars
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Install AppDynamics
+  shell: "/var/tmp/platform-setup-x64-linux-20.6.3.22636.sh -q -varfile /var/tmp/silent.vars"

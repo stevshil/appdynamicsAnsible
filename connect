@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+source vars.conf
+
+if [[ ! -e $sshKeyFile ]] || [[ -z $sshKeyFile ]]
+then
+	echo "SSH Key file $sshKeyFile does not exist, sshKeyFile variable not set" 1>&2
+	exit 1
+fi
+
+
+# For use with single sign on
+if [[ -z $AWS_DEFAULT_PROFILE ]]
+then
+	echo "Please set your profile in AWS_DEFAULT_PROFILE variable" 1>&2
+	exit 1
+fi
+
+# Set your environment to use dev, prod, etc
+if [[ -z $ANSIBLEENV ]]
+then
+	echo "Please set your variable ANSIBLEENV to dev, prod, etc" 1>&2
+	exit 2
+fi
+
+if ! echo "$ANSIBLEENV" | grep '/' >/dev/null 2>&1
+then
+	ANSIBLEENV="$PWD/environments/$ANSIBLEENV"
+fi
+
+# Connect to server by group name
+group=$1
+user=$(grep ansible_ssh_user: $ANSIBLEENV/group_vars/all | awk '{print $2}')
+if grep "\[$group\]" $ANSIBLEENV/hosts >/dev/null 2>&1
+then
+	hostname=$(grep -A1 $group $ANSIBLEENV/hosts | tail -1 | awk '{print $1}')
+	if [ -n $hostname ]
+	then
+		echo "ssh -i "$sshKeyFile" $user@$hostname"
+		ssh -i "$sshKeyFile" $user@$hostname
+	else
+		echo "Host group is empty" 1>&2
+	fi
+else
+	echo "$group not in inventory" 1>&2
+fi

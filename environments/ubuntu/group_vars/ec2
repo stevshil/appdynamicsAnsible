@@ -1,0 +1,13 @@
+ansible_python_interpreter: "{{ lookup('env','PYTHON') }}"
+gather_facts: no
+
+ami:
+  eu-west-1: ami-089cc16f7f08c4457
+  eu-west-2: ami-00f6a0c18edb19300
+  us-east-1: ami-0ac80df6eff0e70b5
+  us-west-2: ami-003634241a8fcdec0
+
+server_type: t3a.xlarge
+agent_type: t3a.medium
+controller_disk_size: 80
+root_device: sda1

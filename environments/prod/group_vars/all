@@ -1,0 +1,18 @@
+# Attributes to change for system
+ansible_ssh_user: ec2-user
+project_name: SteveAppD
+env: prod
+sshkey: steveshillingacademyie
+region: eu-west-1
+
+java_packages:
+  - java-1.8.0-openjdk
+
+# Attributes to change for infra
+vpc_id: vpc-4bb64132
+vpc_security_groups: sg-01f897dc42d10c7de
+secgrps: AcademySG
+subnets:
+  public: subnet-a94474e1
+  private: subnet-a94474e1
+ansible_ssh_common_args: -o StrictHostKeyChecking=no

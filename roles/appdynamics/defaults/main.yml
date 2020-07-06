@@ -1,0 +1,6 @@
+server_aws_public_ip: "{{ groups['server'][0] }}"
+appdPassword: secret123
+appdHTTPS: false
+appdversion: 20.6.3.22636
+controller_disk_size: 80
+root_device: xvda
