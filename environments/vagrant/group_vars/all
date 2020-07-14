@@ -1,0 +1,19 @@
+# Attributes to change for system
+server_aws_public_ip: "192.168.10.123"
+ansible_ssh_user: ubuntu
+project_name: SteveAppD
+env: prod
+sshkey: steveshillingacademyie
+region: eu-west-1
+
+java_packages:
+  - openjdk-11-jdk
+
+# Attributes to change for infra
+vpc_id: vpc-4bb64132
+vpc_security_groups: sg-01f897dc42d10c7de
+secgrps: AcademySG
+subnets:
+  public: subnet-a94474e1
+  private: subnet-a94474e1
+ansible_ssh_common_args: -o StrictHostKeyChecking=no

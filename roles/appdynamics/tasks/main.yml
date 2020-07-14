@@ -3,18 +3,39 @@
 - include_tasks: debian.yml
   when: ansible_os_family == 'Debian'
 
+- name: Do we have a local vagrant version
+  stat:
+    path: "/vagrant/platform-setup-x64-linux-{{appdversion}}.sh"
+  register: vagrantinstaller
+
+- name: Do we have AppDynamics installer
+  stat:
+    path: "/var/tmp/platform-setup-x64-linux-{{appdversion}}.sh"
+  register: installer
+
 - name: Download AppDynamics installer
-  shell: wget https://www.dropbox.com/s/j2efjre64zo9yb3/platform-setup-x64-linux-20.6.3.22636.sh?dl=0 -O /var/tmp/platform-setup-x64-linux-20.6.3.22636.sh
+  get_url:
+    url: "https://www.therapypages.com/sw/platform-setup-x64-linux-{{appdversion}}.sh"
+    dest: "/var/tmp/platform-setup-x64-linux-{{appdversion}}.sh"
+    owner: root
+    group: root
+    validate_certs: no
+    mode: 0755
+  when: not installer.stat.exists and not vagrantinstaller.stat.exists
+
+- name: Set vagrant as run directory
+  set_fact:
+    runpath: /vagrant
+  when: vagrantinstaller.stat.exists
+
+- name: Set /var/tmp as run directory
+  set_fact:
+    runpath: /var/tmp
+  when: installer.stat.exists
 
 - name: Set permissions
-  shell: chmod +x /var/tmp/platform-setup-x64-linux-20.6.3.22636.sh
-#   get_url:
-#     url: "https://www.dropbox.com/s/j2efjre64zo9yb3/platform-setup-x64-linux-20.6.3.22636.sh?dl=0"
-#     dest: /var/tmp/platform-setup-x64-linux-20.6.3.22636.sh
-#     owner: root
-#     group: root
-#     validate_certs: no
-#     mode: 0755
+  shell: "chmod +x /{{runpath}}/platform-setup-x64-linux-{{appdversion}}.sh"
+
 
 - name: Create Silent config file
   template:
@@ -25,4 +46,4 @@
     mode: 0600
 
 - name: Install AppDynamics
-  shell: "/var/tmp/platform-setup-x64-linux-20.6.3.22636.sh -q -varfile /var/tmp/silent.vars"
+  shell: "{{runpath}}/platform-setup-x64-linux-{{appdversion}}.sh -q -varfile /var/tmp/silent.vars"

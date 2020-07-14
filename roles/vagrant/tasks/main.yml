@@ -1,0 +1,24 @@
+- name: Create /opt/appdynamics partition
+  parted:
+    device: /dev/sdb
+    number: 1
+    state: present
+
+- name: Create file system for /opt/appdynamics
+  filesystem:
+    fstype: ext3
+    dev: /dev/sdb1
+
+- name: Create /opt/appdynamics
+  file:
+    path: /opt/appdynamics
+    state: directory
+    mode: 0755
+
+- name: Make sure /opt/appdynamics is in fstab
+  mount:
+    path: /opt/appdynamics
+    src: /dev/sdb1
+    fstype: ext3
+    opts: defaults
+    state: mounted
